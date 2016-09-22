@@ -12,6 +12,8 @@ var connection = mysql.createConnection({
     database: "Bamazon"
 });
 
+//connect to server function
+
 connection.connect(function (err) {
     if (err) throw err;
 
@@ -19,19 +21,14 @@ connection.connect(function (err) {
 
 });
 
+//display function utilizing cli-table npm 
 function display() {
 
 connection.query("SELECT * FROM Products", function (err, res) {
                 if (err)
                     throw err;
 
-                  
-                
-
-                    
-
-
-
+        
 var table = new Table({
     head: ['Item ID', 'Product Name', 'Department', 'Price', 'Quantity']
   , colWidths: [10, 20, 20, 10, 10]
@@ -45,29 +42,120 @@ table.push(
 );
   };
 console.log(table.toString());
+choice();
+
 
 
 })
 };
 
 
+function choice (){
+connection.query("SELECT * FROM Products", function (err, res) {
+  
+                if (err)
+                    throw err;
+
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the Item ID of the Product you'd like to Buy?",
+            name: "choice",
+            validate: function (value) {
+                                    //also validate if a number
+                                    if (value < 11 && value > 0) {
+                                        return true;
+                                    } else {
+                                        return "Please enter a valid ID";
+                                    }
+                                }
+                            }
+    ]).then(function (choice) {
+        if (choice.choice) {
 
 
-//     inquirer.prompt([
-//         {
-//             type: "list",
-//             message: "Would you like to [POST] an auction or [BID] on an auction?",
-//             choices: ["POST", "BID"],
-//             name: "choice"
-//         }
-//     ]).then(function (choice) {
-//         if (choice.choice === "POST") {
+
+          var choice = parseInt(choice.choice);
+
+          var choice = choice -=1;
+
+  
+
+      
+    inquirer.prompt([
+            {
+            type: "input",
+            message: "Excellent choice! How many would you like to buy?",
+            name: "amount",
+            validate: function (value){
+
+
+                                    //also validate if a number
+                                    if (value <= res[choice].StockQuantity ) {
+                                        return true;
+                                    } else {
+                                        return "Please enter a valid amount";
+                                    }
+                                }
+                            }
+    ]).then(function (amount) {
+        if (amount.amount) {
+
+
+          console.log("purchasing " + amount.amount + " of " + res[choice].ProductName);
+
+          var amount = parseInt(amount.amount)
+          var newAmount = res[choice].StockQuantity -= amount
+
+          
+          update();
+
+
+
+      }
+    })
+
+  }
+
+
+})
+
+})
+}
+
+function update (){
+
+  console.log ("processing...");
+
+  connection.query("UPDATE Products SET ? WHERE?", [
+                                {
+                                    StockQuantity: newAmount
+                                }, {
+                                    ItemID: res[choice].ItemID
+                                }], function(err, res) {
+
+                                  display();
+                                });
+
+       
+
+                               
+
+                                          
+
+          
+
+        }
+
+
+
+
 //             inquirer.prompt([
 //                 {
 //                     type: "input",
 //                     name: "name",
-//                     message: "Item Name"
-//                 },
+//                     message: "Item Name"}
+          
 //                 {
 //                     type: "input",
 //                     name: "quantity",
