@@ -38,7 +38,7 @@ var table = new Table({
   , colWidths: [10, 20, 20, 10, 10]
 });
  
-// table is an Array, so you can `push`, `unshift`, `splice` and friends 
+//draw the table using cli-table
 
 for (var i = 0; i < res.length; i++) {
 table.push(
@@ -98,14 +98,19 @@ connection.query("SELECT * FROM Products", function (err, res) {
                                     if (value <= res[choice1].StockQuantity ) {
                                         return true;
                                     } else {
-                                        return "Please enter a valid amount";
+                                        return "Invalid Inventory!";
                                     }
                                 }
                             }
 						    ]).then(function (amount) {
 						        if (amount.amount) {
 
-						          console.log("purchasing " + amount.amount + " of " + res[choice1].ProductName);
+						          
+
+						          var total = res[choice1].Price * amount.amount
+						          console.log("YOUR RECEIPT: \n" + res[choice1].ProductName + "                      " + amount.amount);
+						          console.log("**********************************************\n" + "$" + total);
+						          console.log("\n\n\n THANK YOU COME AGAIN!")
 
 
 						                    connection.query("UPDATE Products SET ? WHERE?", [
@@ -115,27 +120,30 @@ connection.query("SELECT * FROM Products", function (err, res) {
 						                                    ItemID: res[choice1].ItemID
 						                                }], function(err, res) {
 
-						                                })
+						                                });
 
-						                                  connection.query("SELECT * FROM Products", function (err, res) {
-																                if (err)
-																                    throw err;
+
+
+//for future growth - rewrite updated sql table
+						//                                   connection.query("SELECT * FROM Products", function (err, res) {
+						// 										                if (err)
+						// 										                    throw err;
 
 						        
-																				var table = new Table({
-						   														 head: ['Item ID', 'Product Name', 'Department', 'Price', 'Quantity']
-						  															, colWidths: [10, 20, 20, 10, 10]
-																							});
+						// 														var table = new Table({
+						//    														 head: ['Item ID', 'Product Name', 'Department', 'Price', 'Quantity']
+						//   															, colWidths: [10, 20, 20, 10, 10]
+						// 																	});
 						 
-						// table is an Array, so you can `push`, `unshift`, `splice` and friends 
+						// // table is an Array, so you can `push`, `unshift`, `splice` and friends 
 
-																				for (var i = 0; i < res.length; i++) {
-																					table.push(
-																				    [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
-																				);
-																				  };
-																				console.log(table.toString());
-																				                                });
+						// 														for (var i = 0; i < res.length; i++) {
+						// 															table.push(
+						// 														    [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
+						// 														);
+						// 														  };
+						// 														console.log(table.toString());
+																				                                // }
 
 
 
