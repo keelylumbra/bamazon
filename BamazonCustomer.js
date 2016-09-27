@@ -4,11 +4,15 @@ var mysql = require('mysql');
 
 var Table = require('cli-table');
 
+var amount = ""
+var newAmount = ""
+var choice1 = ""
+
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root", //Your username
-    password: "", //Your password
+    password: "root", //Your password
     database: "Bamazon"
 });
 
@@ -75,9 +79,9 @@ connection.query("SELECT * FROM Products", function (err, res) {
 
 
 
-          var choice = parseInt(choice.choice);
+          var choice1 = parseInt(choice.choice);
 
-          var choice = choice -=1;
+          var choice1 = choice1 -=1;
 
   
 
@@ -91,61 +95,62 @@ connection.query("SELECT * FROM Products", function (err, res) {
 
 
                                     //also validate if a number
-                                    if (value <= res[choice].StockQuantity ) {
+                                    if (value <= res[choice1].StockQuantity ) {
                                         return true;
                                     } else {
                                         return "Please enter a valid amount";
                                     }
                                 }
                             }
-    ]).then(function (amount) {
-        if (amount.amount) {
+						    ]).then(function (amount) {
+						        if (amount.amount) {
+
+						          console.log("purchasing " + amount.amount + " of " + res[choice1].ProductName);
 
 
-          console.log("purchasing " + amount.amount + " of " + res[choice].ProductName);
+						                    connection.query("UPDATE Products SET ? WHERE?", [
+						                                {
+						                                    StockQuantity: res[choice1].StockQuantity - amount.amount
+						                                }, {
+						                                    ItemID: res[choice1].ItemID
+						                                }], function(err, res) {
 
-          var amount = parseInt(amount.amount)
-          var newAmount = res[choice].StockQuantity -= amount
+						                                })
 
-          
-          update();
+						                                  connection.query("SELECT * FROM Products", function (err, res) {
+																                if (err)
+																                    throw err;
+
+						        
+																				var table = new Table({
+						   														 head: ['Item ID', 'Product Name', 'Department', 'Price', 'Quantity']
+						  															, colWidths: [10, 20, 20, 10, 10]
+																							});
+						 
+						// table is an Array, so you can `push`, `unshift`, `splice` and friends 
+
+																				for (var i = 0; i < res.length; i++) {
+																					table.push(
+																				    [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
+																				);
+																				  };
+																				console.log(table.toString());
+																				                                });
 
 
 
-      }
-    })
+						      
+						    }
 
-  }
+						  })
 
 
-})
+						}
 
-})
-}
-
-function update (){
-
-  console.log ("processing...");
-
-  connection.query("UPDATE Products SET ? WHERE?", [
-                                {
-                                    StockQuantity: newAmount
-                                }, {
-                                    ItemID: res[choice].ItemID
-                                }], function(err, res) {
-
-                                  display();
-                                });
-
-       
-
-                               
-
+						})
                                           
-
-          
-
-        }
+        })	
+}
 
 
 
